@@ -1,0 +1,310 @@
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Manager/Views/Shared/_Layout.cshtml";
+}
+
+
+<main>
+    <div class="container-fluid">
+        <h1 class="mt-4" style="color: black">CỬA HÀNG VÀNG BẠC ĐÁ QUÝ - TEAM 1</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active" style="font-style:italic">----- Cung cấp các loại đá quý, vàng bạc cao cấp, các dịch vụ đặc biệt -----</li>
+        </ol>
+        @*<div class="row">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-primary text-white mb-4">
+                        <div class="card-body">Primary Card</div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
+                            <a class="small text-white stretched-link" href="#">View Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-warning text-white mb-4">
+                        <div class="card-body">Warning Card</div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
+                            <a class="small text-white stretched-link" href="#">View Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-success text-white mb-4">
+                        <div class="card-body">Success Card</div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
+                            <a class="small text-white stretched-link" href="#">View Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-danger text-white mb-4">
+                        <div class="card-body">Danger Card</div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
+                            <a class="small text-white stretched-link" href="#">View Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+        @*<div class="row">
+                <div class="col-xl-6">
+                    <div class="">
+                        <div class="card-header"><i class="fas fa-chart-area mr-1"></i>Area Chart Example</div>
+                        <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="card mb-4">
+                        <div class="card-header"><i class="fas fa-chart-bar mr-1"></i>Bar Chart Example</div>
+                        <div class="card-body"><canvas id="myBarChart" width="100%" height="40"></canvas></div>
+                    </div>
+                </div>
+            </div>*@
+        <div class="card mb-4">
+            <div class="card-header"><i class="fas fa-table mr-1"></i>Thông tin sản phẩm</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width:100%; cellspacing="0">
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="phieubanhang">
+
+            <style>
+                buttont1 {
+                    position: relative;
+                    bottom: -10px;
+                }
+                th1 {
+                    padding: 5px;
+                    background-color: white;
+                    width: 100%;
+                    border-color: black;
+                    text-align: center;
+                }
+                td1 {
+                    background-color: white;
+                    width: 100%;
+                    border-color: black;
+                }
+                body {
+                    font-family: Arial, Helvetica, sans-serif;
+                    background-color: white;
+                }
+
+                * {
+                    box-sizing: border-box;
+                }
+                /* Add padding to containers */
+                .container {
+                    padding: 15px;
+                    background-color: lightblue;
+                }
+                /* tùy chỉnh nội dung form bên ngoài*/
+                .bodyform {
+                    padding: 15px;
+                    margin-left: 0px 0px;
+                    background-color: whitesmoke;
+                    border: solid;
+                }
+                /* Full-width input fields */
+                input[type=text], input[type=password] {
+                    width: 100%;
+                    padding: 15px;
+                    margin: 5px 0 22px 0;
+                    display: inline-block;
+                    border: none;
+                    background: #f1f1f1;
+                }
+
+                    input[type=text]:focus, input[type=password]:focus {
+                        background-color: #ddd;
+                        outline: none;
+                    }
+                /* Overwrite default styles of hr */
+                hr {
+                    border: 1px solid #f1f1f1;
+                    margin-bottom: 25px;
+                }
+                /* Set a style for the submit button */
+                .registerbtn {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 16px 20px;
+                    margin: 8px 0;
+                    border: none;
+                    cursor: pointer;
+                    width: 100%;
+                    opacity: 0.9;
+                }
+
+                    .registerbtn:hover {
+                        opacity: 1;
+                    }
+                /* Add a blue text color to links */
+                a {
+                    color: dodgerblue;
+                }
+                /* Set a grey background color and center the text of the "sign in" section */
+                .signin {
+                    background-color: #f1f1f1;
+                    text-align: center;
+                }
+
+                .id {
+                    display: inline-block;
+                }
+                /*tạo padding di chuyển ngày lập phiếu bán hàng*/
+                .date {
+                    padding-left: 380px;
+                }
+                /*tạo padding right giữa khoảng cách ô nhập và dòng text hiển thị*/
+                #paddingright {
+                    padding-right: 10px;
+                }
+                /*tạo ô vuông để hiển thị số*/
+                #boxid {
+                    width: 50px;
+                    height: 50px;
+                }
+                /*button tao san pham*/
+                .button {
+                    border: 2px white;
+                    color: black;
+                    text-align: center;
+                    display: inline-block;
+                    margin: 4px 0px 4px 900px;
+                    transition-duration: 0.4s;
+                    cursor: pointer;
+                    float: right;
+                }
+
+                .button1 {
+                    font-size: 14px;
+                    padding: 10px;
+                    position: relative;
+                    right: 300px;
+                    bottom: 25px;
+                    box-shadow: 0 2px #999;
+                    background-color: white;
+                    border-radius: 12px
+                }
+                .button2 {
+                    font-size: 20px;
+                    padding: 10px;
+                    position: relative;
+                    right: 480px;
+                    width: 30%;
+                    bottom: 50px;
+                    box-shadow: 0 2px #999;
+                    background-color: green;
+                    border-radius: 12px
+                }
+            </style>
+            @* chưa làm xong *@
+            <script>
+                var dt = new Date();
+                var month = dt.getMonth();
+                var day = dt.getDate();
+                var year = dt.getFullYear;
+                var fullDay = month + "/" + day + "/" + year;
+                document.getElementById("datetime").innerHTML = fullDay;
+                alert("tuc");
+                //hàm thêm sản phẩm
+                var item = 0;
+                function addItem() {
+                    item++;
+                    var html = "<tr>";
+                    html += "<td> </td>";
+                    html += "<td> <input name='itemName'> </td>";
+                    html += "<td> </td>";
+                    html += "</tr>";
+                    document.getElementById("test").insertRow().innerHTML = html;
+                }
+            </script>
+
+            <span id="datetime"> hehe</span>
+            <div class="bodyform">
+                <form action="/action_page.php">
+                    <h1 style="text-align:center; color: black; font-size: 35px; font-weight: bold">NHẬP PHIẾU BÁN HÀNG</h1>
+                    <div class="container">
+                        @*<p style="text-align:center">Vui lòng nhập thông tin bên dưới</p>*@
+                        @*<hr>*@
+                        <table>
+                            <tr>
+                                <td align="center" id="paddingright">
+                                    <label for="sophieu" style="width:auto" "><b>Số phiếu</b></label>
+                                </td>
+                                <td class="id">
+                                    <input type="text" placeholder="1" style="text-align:center" id="boxid" required>
+                                </td>
+                                <td class="date" align="right" id="paddingright">
+                                    <label for="ngaylap"><b>Ngày lập</b></label>
+                                </td>
+                                <td align="right" class="ngaylap">
+                                    <input type="text" placeholder="Ngày hiện tại" name="datetime" id="datetime" required>
+                                </td>
+                            </tr>
+                            @* Nội dung hiển thị bảng tên khách hàng *@
+                            <tr>
+                                <td>
+                                    <label for="email" id="paddingright"><b>Khách hàng</b></label>
+                                </td>
+                                <td>
+                                    <input type="text" placeholder="Điền đầy đủ họ tên" name="name" id="name" required>
+                                    @*     oninvalid="this.setCustomValidity('Không được để trống')" onvalid="this.setCustomValidity('')" *@
+                                </td>
+                            </tr>
+                            <tr></tr>
+                        </table>
+                        <hr style="background-color:black" />
+                        @*<button type="button" onclick="addItem()"> Thêm sản phẩm </button>*@
+                        @*<input type="button" name="Ten" onclick="addItem()" style="width:50px; height:50px" />*@
+                        <span onclick="addItem()" class="button button1">Thêm sản phẩm</span>
+
+                        @*<button type="button" class="button button1" onclick="addItem()">
+        Thêm sản phẩm
+        </button>*@
+                        @* noi dung phan san pham *@
+                        <table style="position: relative; bottom: 25px;
+                        left: 200px; border-spacing: 15px; border-collapse: collapse;
+                        background-color: white; width: 55%; border:2px solid black; border-color: black;">
+                            <thead>
+                                <tr>
+                                    <th align="left">&nbsp Số thứ tự </th>
+                                    <th align="center">&nbsp &nbsp &nbsp Tên sản phẩm </th>
+                                    <th align="right"> Giá sản phẩm </th>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                            <tbody id="test"></tbody>
+                        </table>
+                        <table style="
+                         position: relative; bottom: 20px;
+                         left: 810px;border-collapse: collapse; background-color: white; width: 26%; border:2px solid; border-color: black">
+                            <thead>
+                                <tr>
+                                    <th align:right>&nbsp Tổng Tiền: </th>
+                                </tr>
+                            </thead>
+                            <tbody id="test"></tbody>
+                        </table>
+                        <span onclick="" class="button button2">Tạo</span>
+                        @*<p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>*@
+                        @*@<button type="submit" class="registerbtn">Tạo</button>*@
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+

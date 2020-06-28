@@ -1,0 +1,753 @@
+﻿@model QuanLiCuaHang.Areas.Manager.Data.CHITIET_PHIEUDV
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Areas/Manager/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+@*<link rel="stylesheet" type="text/css" href="~/Assets/Manager/dist/assets/sweetalert/dist/sweetalert2.css">*@
+@*<script src="~/Assets/Manager/dist/assets/sweetalert/dist/sweetalert2.all.min.js"></script>*@
+<link rel="stylesheet" href="https://npmcdn.com/sweetalert2@4.0.15/dist/sweetalert2.min.css">
+@*<script src="https://npmcdn.com/sweetalert2@4.0.15/dist/sweetalert2.min.js"></script>*@
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script type="text/javascript">
+    // Hàm chọn sản phẩm hiển thị đơn giá, đơn vị tinnhs
+
+
+    $(document).ready(function () {
+        //$("#txtNgayGiaoDich").val(new Date().toJSON().slice(0, 19));
+        $("#MaLoaiDV").val(0);
+        GetPhanTramTraTruoc();
+        Date.prototype.toDateInputValue = (function () {
+            var local = new Date(this);
+            local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+            return local.toJSON().slice(0, 10);
+        });
+
+        $('#txtNgayLap').val(new Date().toDateInputValue());
+
+        $("#MaLoaiDV").change(function () {
+            var MaLoaiDV = $("#MaLoaiDV").val();
+            GetDonGiaDV(MaLoaiDV);
+
+            //var chiPhiRieng = parseFloat($("#txtChiPhiRieng").val());
+            //var donGiaDV = parseFloat($("#txtDonGiaDichVu").val());
+            //$("#txtDonGiaDuocTinh").val(chiPhiRieng + donGiaDV);
+        });
+
+        // Hàm tính đơn giá được tính
+        //$("#txtChiPhiRieng").change(function () {
+        //    var chiPhiRieng = parseFloat($("#txtChiPhiRieng").val());
+        //    var donGiaDV = parseFloat($("#txtDonGiaDichVu").val());
+        //    $("#txtDonGiaDuocTinh").val(chiPhiRieng + donGiaDV);
+        //});
+
+        //$("#txtDonGiaDichVu").change(function () {
+        //    var chiPhiRieng = parseFloat($("#txtChiPhiRieng").val());
+        //    var donGiaDV = parseFloat($("#txtDonGiaDichVu").val());
+        //    $("#txtDonGiaDuocTinh").val(chiPhiRieng + donGiaDV);
+        //});
+
+        // Hàm tính số lượng, đơn giá được tính
+        $("#txtDonGiaDuocTinh").change(function () {
+            var soLuong = parseFloat($("#txtSoLuong").val());
+            var donGiaDuocTinh = parseFloat($("#txtDonGiaDuocTinh").val());
+
+            $("#txtThanhTien").val(soLuong * donGiaDuocTinh);
+            var thanhTien = parseFloat($("#txtThanhTien").val());
+            var traTruoc = parseFloat($("#txtTraTruoc").val());
+            $("#txtConLai").val(thanhTien - traTruoc);
+        });
+
+        $("#txtSoLuong").change(function () {
+            var soLuong = parseFloat($("#txtSoLuong").val());
+            var donGiaDuocTinh = parseFloat($("#txtDonGiaDuocTinh").val());
+
+            $("#txtThanhTien").val(soLuong * donGiaDuocTinh);
+            var thanhTien = parseFloat($("#txtThanhTien").val());
+            var traTruoc = parseFloat($("#txtTraTruoc").val());
+            $("#txtConLai").val(thanhTien - traTruoc);
+        });
+
+        // Hàm tính giá trị còn lại
+        $("#txtThanhTien").change(function () {
+            var thanhTien = parseFloat($("#txtThanhTien").val());
+            var traTruoc = parseFloat($("#txtTraTruoc").val());
+            $("#txtConLai").val(thanhTien - traTruoc);
+        });
+
+        $("#txtTraTruoc").change(function () {
+            var thanhTien = parseFloat($("#txtThanhTien").val());
+            var traTruoc = parseFloat($("#txtTraTruoc").val());
+            $("#txtConLai").val(thanhTien - traTruoc);
+        });
+
+
+        // Hàm đưa giá trị xuống database
+        var clicked = 0;
+        $("#btnThanhToan").click(function () {
+            var phieuDichVu = {};
+            var dsct_PhieuDichVu = new Array();
+            phieuDichVu.TenKH = $("#txtTenKH").val();
+            phieuDichVu.SDT = $("#txtSDT").val();
+            phieuDichVu.NgayLap = $("#txtNgayLap").val();
+            phieuDichVu.TongTien = $("#txtTongTien").val();
+            phieuDichVu.TongTienTraTruoc = $("#txtTongTraTruoc").val();
+            phieuDichVu.TongTienConLai = $("#txtTongConLai").val();
+            phieuDichVu.MaTinhTrangPDV = $("txtMaTinhTrangPDV").val();
+            $("#tblDanhSachSanPham").find("tr:gt(0)").each(function () {
+                //$("table tr:not(:first)").each(function () {
+                var ct_PhieuDichVu = {};
+                ct_PhieuDichVu.MaLoaiDV = parseFloat($(this).find("td:eq(0)").text());
+                ct_PhieuDichVu.DonGiaDuocTinh = parseFloat($(this).find("td:eq(3)").text());
+                ct_PhieuDichVu.SoLuong = parseFloat($(this).find("td:eq(4)").text());
+                ct_PhieuDichVu.ThanhTien = parseFloat($(this).find("td:eq(5)").text());
+                ct_PhieuDichVu.ThanhToanTraTruoc = parseFloat($(this).find("td:eq(6)").text());
+                ct_PhieuDichVu.ThanhToanConLai = parseFloat($(this).find("td:eq(7)").text());
+                ct_PhieuDichVu.NgayGiao = $(this).find("td:eq(8)").text();
+                ct_PhieuDichVu.MaTinhTrangDV = parseFloat($(this).find("td:eq(9)").text());
+
+
+                dsct_PhieuDichVu.push(ct_PhieuDichVu);
+            });
+            phieuDichVu.DSChiTiet = dsct_PhieuDichVu;
+
+            if (phieuDichVu.DSChiTiet.length == 0 || phieuDichVu.TenKH == "" ||
+                phieuDichVu.NgayLap == "" || phieuDichVu.SDT == "") {
+                if (phieuDichVu.TenKH == "") {
+                    swal({
+                        title: "Lỗi !",
+                        text: "Vui lòng nhập tên khách hàng",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                }
+
+                else if (phieuDichVu.NgayLap == "") {
+                    //alert('Thông tin các trường rỗng, vui lòng xem lại các yêu cầu');
+                    swal({
+                        title: "Lỗi !",
+                        text: "Vui lòng nhập ngày lập phiếu",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                }
+
+                else if (phieuDichVu.SDT == "") {
+                    //alert('Vui lòng thêm sản phẩm cần bán');
+                    swal({
+                        title: "Lỗi !",
+                        text: "Vui lòng nhập số điện thoại",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                }
+            }
+
+            else {
+                
+    
+                    $.ajax({
+                        async: true,
+                        type: 'POST',
+                        dataType: 'JSON',
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify(phieuDichVu),
+                        url: '/Manager/CT_PhieuDichVu/Create',
+                        success: function (data) {
+                            //alert(data);
+                            swal({
+                                title: "Thành công !",
+                                text: "Tạo phiếu thành công!",
+                                icon: "success",
+                                button: "Đồng ý!",
+                            });
+                        },
+                        error: function () {
+                            alert('Lỗi');
+                        },
+                    });
+            }
+
+            return View();
+        });
+
+
+
+    });
+    // Hàm reset
+    function Reset() {
+        $("#MaLoaiDV").val(0);
+        $("#txtDonGiaDichVu").val('');
+        $("#txtDonGiaDuocTinh").val('');
+        $("#txtSoLuong").val('');
+        $("#txtThanhTien").val('');
+        $("#txtTraTruoc").val('');
+        $("#txtConLai").val('');
+        $("#txtNgayGiao").val('');
+        $("#MaTinhTrangDV").val(0);
+        $("#txtSDT").val('');
+    }
+    // Hàm thêm sản phẩm vào bảng tbl
+    var soThuTu = 0;
+    function addItem() {
+        var maLoaiDV = $("#MaLoaiDV").val();
+        var tenLoaiDV = $("#MaLoaiDV option:selected").text();
+        var donGiaDichVu = parseFloat($("#txtDonGiaDichVu").val());
+        var donGiaDuocTinh = $("#txtDonGiaDuocTinh").val();
+        var soLuong = parseFloat($("#txtSoLuong").val());
+        var thanhTien = parseFloat($("#txtThanhTien").val());
+        var traTruoc = $("#txtTraTruoc").val();
+        var conLai = parseFloat($("#txtConLai").val());
+        var ngayGiao = $("#txtNgayGiao").val();
+        var maTinhTrang = $("#MaTinhTrangDV").val();
+        var tinhTrang = $("#MaTinhTrangDV option:selected").text();
+        var checkfor = 0;
+
+        // check phần trăm trả trước
+        var phanTramTraTruoc = parseFloat($("#txtPhanTramTraTruoc").val());
+        var checkTraTruoc = (phanTramTraTruoc * thanhTien) / 100;
+
+        if (maLoaiDV == null) {
+            swal({
+                title: "Lỗi !",
+                text: "Vui lòng chọn loại dịch vụ",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else if (donGiaDuocTinh == "") {
+            swal({
+                title: "Lỗi !",
+                text: "Vui lòng nhập đơn giá được tính",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+
+        else if (parseFloat(donGiaDuocTinh) < parseFloat(donGiaDichVu)) {
+            swal({
+                title: "Lỗi !",
+                text: "Đơn giá được tính không được nhỏ hơn đơn giá dịch vụ",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+
+        else if (soLuong < 1) {
+            swal({
+                title: "Lỗi !",
+                text: "Số lượng dịch vụ tối thiểu là 1",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+
+        else if (ngayGiao == "") {
+            swal({
+                title: "Lỗi !",
+                text: "Vui lòng chọn ngày giao",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else if (traTruoc == "") {
+            swal({
+                title: "Lỗi !",
+                text: "Vui lòng nhập số tiền trả trước",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else if (parseFloat(traTruoc) < 0) {
+            swal({
+                title: "Lỗi !",
+                text: "Số tiền trả trước là nguyên dương",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else if (parseFloat(traTruoc) < checkTraTruoc) {
+            swal({
+                title: "Lỗi !",
+                text: "Phần trăm TT " + phanTramTraTruoc + "%" + ". Số tiền trả trước tối thiểu là " + checkTraTruoc,
+                icon: "error",
+                button: "Đồng ý!",
+            });
+
+        }
+
+
+
+        else if (traTruoc > thanhTien) {
+            swal({
+                title: "Lỗi !",
+                text: "Số tiền trả trước không được lớn hơn thành tiền",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else {
+            $("table tr:not(:first)").each(function () {
+                if (parseFloat(maLoaiDV) == parseFloat($(this).find("td:eq(0)").text())) {
+                    swal({
+                        title: "Lỗi !",
+                        text: "Loại dịch vụ trong danh sách bị trùng!",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                    checkfor = 1;
+                }
+            });
+            if (checkfor == 0) {
+                soThuTu++;
+                var html = "<tr>";
+                html += "<td hidden>" + maLoaiDV + "</td>";
+                //html += "<td>" + soThuTu + "</td>";
+                html += "<td>" + tenLoaiDV + "</td >";
+                html += "<td>" + donGiaDichVu + "</td > ";
+                html += "<td>" + donGiaDuocTinh + "</td > ";
+                html += "<td>" + soLuong + "</td>";
+                html += "<td>" + thanhTien + "</td>";
+                html += "<td>" + traTruoc + "</td>";
+                html += "<td>" + conLai + "</td>";
+                html += "<td>" + ngayGiao + "</td>";
+                html += "<td hidden>" + maTinhTrang + "</td>";
+                html += "<td>" + tinhTrang + "</td>";
+                html += "<td> <input type='button' value='Xóa' name='Xoa' class='btn btn-danger' onclick='RemoveItem(this)'/> </tr>";
+                html += "</tr>";
+                document.getElementById("#tblDSSanPham").insertRow().innerHTML = html;
+                document.getElementById("#")
+                CalTotal();
+                // hàm tính trả trước, tổng tiền, còn lại
+                Reset();
+            }
+        }
+
+    }
+
+
+
+    // lấy đơn giá dịch vụ
+    function GetPhanTramTraTruoc() {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuDichVu/GetPhanTramTraTruoc',
+            data: {},
+            success: function (data) {
+                $("#txtPhanTramTraTruoc").val(parseFloat(data).toFixed(0));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu, vui lòng thử lại sau');
+            }
+        });
+    }
+    // lấy phần trăm trả trước
+    function GetDonGiaDV(MaLoaiDV) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuDichVu/GetDonGiaDV',
+            data: { MaLoaiDV: MaLoaiDV },
+            success: function (data) {
+                $("#txtDonGiaDichVu").val(parseFloat(data).toFixed(0));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu đơn giá, vui lòng thử lại sau');
+            }
+        });
+    }
+
+    // tính toán tổng tiền dịch  vụ
+    var TongTien = 0;
+    var TongTraTruoc = 0;
+    var TongConLai = 0;
+    function CalTotal() {
+        var thanhTien = parseFloat($('#txtThanhTien').val());
+        var traTruoc = parseFloat($('#txtTraTruoc').val());
+        var conLai = parseFloat($('#txtConLai').val());
+        TongTien += thanhTien;
+        TongTraTruoc += traTruoc;
+        TongConLai += conLai;
+        document.getElementById('txtTongTien').innerHTML = TongTien;
+        $("#txtTongTien").val(TongTien);
+        $("#txtTongTraTruoc").val(TongTraTruoc);
+        $("#txtTongConLai").val(TongConLai);
+
+    }
+
+
+    // Xóa sản phẩm
+    function RemoveItem(id) {
+        TongTien = TongTien - parseFloat($(id).closest('tr').find('td:eq(6)').text());
+        $(id).closest('tr').remove();
+        document.getElementById('txtThanhTien').innerHTML = TongTien;
+        $("txtTongTien").val(TongTien);
+    }
+
+</script>
+
+
+
+
+
+@* Begin CSS *@
+<style>
+    div {
+        font-family: Arial;
+    }
+
+    fieldset {
+        /* tạo khung viền bên ngoài*/
+        border: 3px solid #ddd !important;
+        margin: 0;
+        /*xmin-width: 0;*/
+        padding: 10px;
+        position: relative;
+        border-radius: 4px;
+        /* màu nền xám*/
+        background-color: #f5f5f5;
+        padding-left: 10px !important;
+    }
+
+    legend {
+        font-size: 15px;
+        font-weight: bold;
+        margin-bottom: 0px;
+        width: 15%;
+        /* tạo border xung quanh legend*/
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px 5px 5px 10px;
+        background-color: lightblue;
+    }
+
+    td {
+        text-align: center;
+    }
+
+    #nhapphieu {
+        text-align: center;
+        color: white;
+        font-size: 35px;
+        font-weight: bold;
+        border: 1px solid #ddd;
+        background-color: forestgreen;
+        padding: 0px 0px;
+        margin: 0px 380px;
+    }
+</style>
+@* End CSS *@
+
+<h1 id="nhapphieu">NHẬP PHIẾU BÁN HÀNG</h1>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <fieldset>
+        <legend>
+            Thông tin khách hàng
+        </legend>
+        <div class="container">
+            <div class="row">
+                <div class="row col-md-3">
+                    <div class="form-group was-validated">
+                        Tên khách hàng
+
+
+                        @*<input type="text" class="form-control" />*@
+                        @Html.EditorFor(model => model.PHIEUDV.TenKH, new { htmlAttributes = new { @class = "form-control", id = "txtTenKH", required = "true", @maxLength = "30", style = "width:180px" } })
+                        @Html.ValidationMessageFor(model => model.PHIEUDV.TenKH, "", new { @class = "text-danger" })
+                        <div class="invalid-feedback">  </div>
+
+
+                    </div>
+                </div>
+
+                @*<div class="row col-md-3">
+
+                    </div>*@
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Số điện thoại
+
+                        @Html.EditorFor(model => model.PHIEUDV.SDT, new { htmlAttributes = new { @class = "form-control", id = "txtSDT", style = "width:180px", minLength = "10", maxLength = "10" } })
+                        @Html.ValidationMessageFor(model => model.PHIEUDV.NgayLap, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Ngày lập
+
+                        @Html.EditorFor(model => model.PHIEUDV.NgayLap, new { htmlAttributes = new { @class = "form-control", id = "txtNgayLap", type = "date", style = "width:180px" } })
+                        @Html.ValidationMessageFor(model => model.PHIEUDV.NgayLap, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+
+
+            </div>
+
+            <div class="row">
+                <div class="row col-md-3">
+
+                    <div class="form-group">
+                        Trả trước
+                        <input style="width:180px" type="text" id="txtTongTraTruoc" class="form-control" readonly="readonly" />
+
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group was-validated">
+                        Tổng tiền
+                        <input style="width:180px" type="text" id="txtTongTien" class="form-control" readonly="readonly" />
+
+
+                        <div class="invalid-feedback">  </div>
+
+
+                    </div>
+                </div>
+
+                @*<div class="row col-md-3">
+
+                    </div>*@
+
+
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Còn lại
+
+                        <input style="width:180px" type="text" id="txtTongConLai" class="form-control" readonly="readonly" />
+
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Tình trạng
+
+                        @Html.DropDownList("MaTinhTrangPDV", null, htmlAttributes: new { @class = "form-control", id = "MaTinhTrangPDV", required = "true", style = "width:180px", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(model => model.PHIEUDV.MaTinhTrangPDV, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </fieldset>
+
+
+    <fieldset>
+        <legend>
+            Thông tin dịch vụ
+        </legend>
+        <div class="container">
+            <div class="row">
+                <div class="row col-md-3">
+                    <div class="form-group was-validated">
+                        Tên loại dịch vụ
+                        @Html.DropDownList("MaLoaiDV", null, htmlAttributes: new { @class = "form-control", type = "text", required = "true", style = "width:180px" })
+                        @Html.ValidationMessageFor(model => model.MaLoaiDV, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+
+                @*<div class="row col-md-3">
+                        <div class="form-group">
+                            Chi Phí Riêng
+                            <input style="width:180px" type="number" min="0" id="txtChiPhiRieng" value="0" class="form-control" />
+                        </div>
+                    </div>*@
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Đơn giá được tính
+                        <input style="width:180px" type="number" class="form-control" id="txtDonGiaDuocTinh" />
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Đơn giá dịch vụ
+                        <input style="width:180px" type="text" id="txtDonGiaDichVu" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
+
+
+
+
+            </div>
+
+            <div class="row">
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Số lượng
+                        <input style="width:180px" id="txtSoLuong" type="number" value="0" min="1" class="form-control" />
+                        <div class="invalid-feedback">
+                            *Số lượng tối thiểu 1
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Ngày Giao
+
+                        <input style="width:180px" type="date" class="form-control" id="txtNgayGiao" />
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Tình Trạng
+                        @Html.DropDownList("MaTinhTrangDV", null, htmlAttributes: new { @class = "form-control", type = "text", required = "true", style = "width:180px" })
+                        @Html.ValidationMessageFor(model => model.MaTinhTrangDV, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+
+
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        Trả trước
+                        <input style="width:180px" type="number" class="form-control" id="txtTraTruoc" />
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group was-validated">
+                        Thành tiền
+                        <input style="width:180px" type="number" readonly="readonly" class="form-control" id="txtThanhTien" />
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group was-validated">
+                        Còn lại
+                        <input style="width:180px" type="number" readonly="readonly" class="form-control" id="txtConLai" />
+                    </div>
+                </div>
+
+
+                <div class="row col-md-3" hidden>
+                    <div class="form-group was-validated">
+                        Phần trăm trả trước
+                        <input style="width:180px" type="number" readonly="readonly" class="form-control" id="txtPhanTramTraTruoc" />
+                    </div>
+                </div>
+
+
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        <input style="margin-top:20px" type="button" onclick="addItem()" id="btnThemSanPham" value="Thêm sản phẩm" name="ThemSanPham" class="btn btn-primary" />
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+        </div>
+
+    </fieldset>
+
+    <fieldset>
+        <legend> Danh sách dịch vụ </legend>
+        <table class="table-bordered table-hover" style="width: 100%" id="tblDanhSachSanPham">
+            <thead>
+                <tr>
+                    <th hidden>
+                        MaDV
+                    </th>
+                    <th style="text-align: center">
+                        Loại dịch vụ
+                    </th>
+                    <th style="text-align: center">
+                        Đơn giá dịch vụ
+                    </th>
+                    <th style="text-align: center">
+                        Đơn giá được tính
+                    </th>
+
+                    <th style="text-align: center">
+                        Số lượng
+                    </th>
+
+                    <th style="text-align: center">
+                        Thành tiền
+                    </th>
+                    <th style="text-align: center">
+                        Trả trước
+                    </th>
+                    <th style="text-align: center">
+                        Còn lại
+                    </th>
+
+                    <th style="text-align: center">
+                        Ngày giao
+                    </th>
+
+                    <th hidden>
+                        Mã Tình Trạng
+                    </th>
+
+                    <th style="text-align: center">
+                        Tình trạng
+                    </th>
+
+                    <th style="text-align: center">
+                        Hành động
+                    </th>
+                </tr>
+
+            </thead>
+            <tbody id="#tblDSSanPham"></tbody>
+        </table>
+    </fieldset>
+
+    @*<p style="text-align:right; float: left; padding-top:20px; padding-left: 15px">
+            <span id="txtThanhTien" style="font-weight:bold; font-size: 150%; background-color: yellow"> Tổng tiền: </span>
+            <span id="txtGiaTriThanhTien" style="color:red; font-weight:bold; font-size: 150%; background-color: yellow"> 0</span>
+        </p>*@
+
+    <div style="margin: 20px 15px">
+        <div class="form-group">
+            <input type="button" id="btnThanhToan" value="Xác nhận" style="float:right" name="Xác nhận" class="btn btn-primary" />
+
+        </div>
+
+    </div>
+}
+

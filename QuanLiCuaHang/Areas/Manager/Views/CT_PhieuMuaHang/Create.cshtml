@@ -1,0 +1,579 @@
+﻿@model QuanLiCuaHang.Areas.Manager.Data.CHITIET_PMH
+
+
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Areas/Manager/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+@*<link rel="stylesheet" type="text/css" href="~/Assets/Manager/dist/assets/sweetalert/dist/sweetalert2.css">*@
+@*<script src="~/Assets/Manager/dist/assets/sweetalert/dist/sweetalert2.all.min.js"></script>*@
+<link rel="stylesheet" href="https://npmcdn.com/sweetalert2@4.0.15/dist/sweetalert2.min.css">
+@*<script src="https://npmcdn.com/sweetalert2@4.0.15/dist/sweetalert2.min.js"></script>*@
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script type="text/javascript">
+    // Hàm chọn sản phẩm hiển thị đơn giá, đơn vị tinnhs
+    $(document).ready(function () {
+        $("#txtNgayGiaoDich").val(new Date().toJSON().slice(0, 19));
+        $("#MaSP").val(0);
+        $("#MaNCC").val(0);
+        $("#MaSP").change(function () {
+            var MaSP = $("#MaSP").val();
+            GetDonGia(MaSP);
+            GetLoaiSanPham(MaSP);
+            GetDonViTinh(MaSP);
+            GetSoLuongTon(MaSP);
+        });
+
+        $("#MaNCC").change(function () {
+            var MaNCC = $("#MaNCC").val();
+            GetSDT(MaNCC);
+            GetDiaChi(MaNCC);
+        });
+
+
+        // Hàm đưa giá trị xuống database
+        var clicked = 0;
+        $("#btnThanhToan").click(function () {
+            var phieuMuaHang = {};
+            var dsct_PhieuMuaHang = new Array();
+            phieuMuaHang.MaNCC = $("#MaNCC").val();
+            phieuMuaHang.NgayLap = $("#txtNgayGiaoDich").val();
+            phieuMuaHang.TongTien = TongTien;
+            $("#tblDanhSachSanPham").find("tr:gt(0)").each(function () {
+            //$("table tr:not(:first)").each(function () {
+                var ct_PhieuMuaHang = {};
+                ct_PhieuMuaHang.MaSP = parseFloat($(this).find("td:eq(0)").text());
+                ct_PhieuMuaHang.SoLuong = parseFloat($(this).find("td:eq(3)").text());
+                ct_PhieuMuaHang.DonGia = parseFloat($(this).find("td:eq(5)").text());
+                ct_PhieuMuaHang.ThanhTien = parseFloat($(this).find("td:eq(6)").text());
+
+                dsct_PhieuMuaHang.push(ct_PhieuMuaHang);
+            });
+            phieuMuaHang.DSChiTiet = dsct_PhieuMuaHang;
+
+            if (phieuMuaHang.DSChiTiet.length == 0 || phieuMuaHang.MaNCC == "" ||
+                phieuMuaHang.NgayLap == "" || phieuMuaHang.TongTien == "") {
+                if (phieuMuaHang.MaNCC == "") {
+                    swal({
+                        title: "Lỗi !",
+                        text: "Vui lòng nhập tên khách hàng!",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                }
+
+                else if (phieuMuaHang.NgayLap == "" ){
+                    //alert('Thông tin các trường rỗng, vui lòng xem lại các yêu cầu');
+                    swal({
+                        title: "Lỗi !",
+                        text: "Vui lòng nhập ngày lập phiếu",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                }
+
+                else if (phieuMuaHang.DSChiTiet.length == 0) {
+                    //alert('Vui lòng thêm sản phẩm cần bán');
+                    swal({
+                        title: "Lỗi !",
+                        text: "Vui lòng thêm sản phẩm cần bán!",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                }
+            }
+
+            else {
+                var check = 0;
+                for (i = 0; i < phieuMuaHang.DSChiTiet.length; i++)
+                {
+                    for ( j = i + 1; j < phieuMuaHang.DSChiTiet.length; j++)
+                    {
+                        if (phieuMuaHang.DSChiTiet[i].MaSP == phieuMuaHang.DSChiTiet[j].MaSP) {
+                            swal({
+                                title: "Lỗi !",
+                                text: "Sản phẩm trong danh sách bị trùng!",
+                                icon: "error",
+                                button: "Đồng ý!",
+                            });
+                            check = 1;
+                            break;
+                        }
+                    }
+                }
+                if (check == 0) {
+                $.ajax({
+                    async: true,
+                    type: 'POST',
+                    dataType: 'JSON',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(phieuMuaHang),
+                    url: '/Manager/CT_PhieuMuaHang/Create',
+                    success: function (data) {
+                        //alert(data);
+                        swal({
+                            title: "Thành công !",
+                            text: "Tạo phiếu thành công!",
+                            icon: "success",
+                            button: "Đồng ý!",
+                        });
+                    },
+                    error: function () {
+                        alert('Lỗi');
+                    },
+                });
+            }
+            }
+
+            return View();
+        });
+
+    });
+    // Hàm đưa các giá trị xuống database
+    function ThanhToan() {
+
+    }
+    // Hàm thêm sản phẩm vào bảng tbl
+    var soThuTu = 0;
+    function addItem() {
+        var maSanPham = $("#MaSP").val();
+        var tenSanPham = $("#MaSP option:selected").text();
+        var loaiSanPham = $("#txtLoaiSanPham").val();
+        var soLuong = $("#txtSoLuong").val();
+        var donViTinh = $("#txtDonViTinh").val();
+        var donGia = $("#txtDonGia").val();
+        var tongTien = soLuong * donGia;
+        var checkfor = 0;
+
+        var slTon = $("#txtSoLuongTon").val();
+        if (maSanPham == null) {
+            swal({
+                title: "Lỗi !",
+                text: "Vui lòng chọn tên sản phẩm",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else if (soLuong < 1) {
+            swal({
+                title: "Lỗi !",
+                text: "Số lượng bán tối thiểu là 1",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else if (parseFloat(soLuong) > parseFloat(slTon)) {
+            swal({
+                title: "Lỗi !",
+                text: "Vượt quá số lượng tồn",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else if (donGia == 0) {
+            swal({
+                title: "Lỗi !",
+                text: "Đơn giá phải lớn hơn 0",
+                icon: "error",
+                button: "Đồng ý!",
+            });
+        }
+
+        else {
+            $("table tr:not(:first)").each(function () {
+                if (parseFloat(maSanPham) == parseFloat($(this).find("td:eq(0)").text())) {
+                    swal({
+                        title: "Lỗi !",
+                        text: "Sản phẩm trong danh sách bị trùng!",
+                        icon: "error",
+                        button: "Đồng ý!",
+                    });
+                    checkfor = 1;
+                }
+            });
+
+
+            if (checkfor == 0) {
+                soThuTu++;
+                var html = "<tr>";
+                html += "<td hidden>" + maSanPham + "</td>";
+                //html += "<td>" + soThuTu + "</td>";
+                html += "<td>" + tenSanPham + "</td >";
+                html += "<td>" + loaiSanPham + "</td > ";
+                html += "<td>" + soLuong + "</td > ";
+                html += "<td>" + donViTinh + "</td>";
+                html += "<td>" + donGia + "</td>";
+                html += "<td>" + tongTien + "</td>";
+                html += "<td> <input type='button' value='Xóa' name='Xoa' class='btn btn-danger' onclick='RemoveItem(this)'/> </tr>";
+                html += "</tr>";
+                document.getElementById("#tblDSSanPham").insertRow().innerHTML = html;
+                document.getElementById("#")
+                CalTotal();
+            }
+        }
+    }
+    // Hàm thêm danh sách sản phẩm
+
+    function GetDonGia(MaSP) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuMuaHang/GetDonGia',
+            data: { MaSP: MaSP },
+            success: function (data) {
+                $("#txtDonGia").val(parseFloat(data).toFixed(0));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu đơn giá, vui lòng thử lại sau');
+            }
+        });
+    }
+    //Lấy loại sản phẩm truyền vào form
+    function GetLoaiSanPham(MaSP) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuMuaHang/GetLoaiSanPham',
+            data: { MaSP: MaSP },
+            success: function (data) {
+                $("#txtLoaiSanPham").val((data));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu loại sản phẩm, vui lòng thử lại sau');
+            }
+        });
+    }
+    //Lấy đơn vị tính
+    function GetDonViTinh(MaSP) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuMuaHang/GetDonViTinh',
+            data: { MaSP: MaSP },
+            success: function (data) {
+                $("#txtDonViTinh").val((data));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu loại sản phẩm, vui lòng thử lại sau');
+            }
+        });
+    }
+
+    // Lấy số điện thoại
+    function GetSDT(MaNCC) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuMuaHang/GetSDT',
+            data: { MaNCC: MaNCC },
+            success: function (data) {
+                $("#txtSDT").val((data));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu, vui lòng thử lại sau');
+            }
+        });
+    }
+
+    // Lấy địa chỉ
+    function GetDiaChi(MaNCC) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuMuaHang/GetDiaChi',
+            data: { MaNCC: MaNCC },
+            success: function (data) {
+                $("#txtDiaChi").val((data));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu, vui lòng thử lại sau');
+            }
+        });
+    }
+
+
+    //Lấy số lượng tồn
+    function GetSoLuongTon(MaSP) {
+        $.ajax({
+            async: true,
+            type: 'GET',
+            dataType: 'JSON',
+            contentType: 'application/json; charset=utf-8',
+            url: '/Manager/CT_PhieuMuaHang/GetSoLuongTon',
+            data: { MaSP: MaSP },
+            success: function (data) {
+                $("#txtSoLuongTon").val((data));
+            },
+            error: function () {
+                alert('Không lấy được dữ liệu loại sản phẩm, vui lòng thử lại sau');
+            }
+        });
+    }
+
+    // tính toán tổng tiền của tất cả sản phẩm
+    var TongTien = 0;
+    function CalTotal() {
+        var SoLuong = $('#txtSoLuong').val();
+        var DonGia = $('#txtDonGia').val();
+        var TongTienThanhPhan = SoLuong * DonGia;
+        TongTien += TongTienThanhPhan;
+        document.getElementById('txtGiaTriThanhTien').innerHTML = TongTien;
+        $("txtTongThanhTien").val(TongTien);
+    }
+
+    // Xóa sản phẩm
+    function RemoveItem(id) {
+        TongTien = TongTien - parseFloat($(id).closest('tr').find('td:eq(6)').text());
+        $(id).closest('tr').remove();
+        document.getElementById('txtGiaTriThanhTien').innerHTML = TongTien;
+        $("txtTongThanhTien").val(TongTien);
+    }
+
+</script>
+
+
+
+
+
+@* Begin CSS *@
+<style>
+    fieldset {
+        /* tạo khung viền bên ngoài*/
+        border: 1px solid #ddd !important;
+        margin: 0;
+        /*xmin-width: 0;*/
+        padding: 10px;
+        position: relative;
+        border-radius: 4px;
+        /* màu nền xám*/
+        background-color: #f5f5f5;
+        padding-left: 10px !important;
+    }
+
+    legend {
+        font-size: 15px;
+        font-weight: bold;
+        margin-bottom: 0px;
+        width: 15%;
+        /* tạo border xung quanh legend*/
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px 5px 5px 10px;
+        background-color: ghostwhite;
+    }
+
+    td {
+        text-align: center;
+    }
+</style>
+@* End CSS *@
+
+<h1 style="text-align:center; color: red; font-size: 35px; font-weight: bold">NHẬP PHIẾU MUA HÀNG</h1>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <fieldset>
+        <legend>
+            Thông tin khách hàng
+        </legend>
+        <div class="container">
+            <div class="row">
+                <div class="row col-md-4">
+                    <div class="form-group was-validated">
+                        Nhà cung cấp
+
+
+                        @*<input type="text" class="form-control" />*@
+                        @*@Html.EditorFor(model => model.PHIEUMUAHANG.MaNCC, new { htmlAttributes = new { @class = "form-control", id = "txtTenKH", required = "true", @maxLength = "30", style = "width:150px" } })
+        @Html.ValidationMessageFor(model => model.PHIEUMUAHANG.MaNCC, "", new { @class = "text-danger" })*@
+
+                        @Html.DropDownList("MaNCC", null, htmlAttributes: new { @class = "form-control", type = "text", required = "true", style = "width:180px" })
+                        @Html.ValidationMessageFor(model => model.PHIEUMUAHANG.MaNCC, "", new { @class = "text-danger" })
+                        <div class="invalid-feedback">  </div>
+
+
+                    </div>
+                </div>
+
+                @*<div class="row col-md-3">
+
+            </div>*@
+
+                <div class="row col-md-4">
+                    <div class="form-group">
+                        Ngày lập
+
+                        @Html.EditorFor(model => model.PHIEUMUAHANG.NgayLap, new { htmlAttributes = new { @class = "form-control", id = "txtNgayGiaoDich", type = "datetime-local" } })
+                        @Html.ValidationMessageFor(model => model.PHIEUMUAHANG.NgayLap, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+               
+
+                <div class="row col-md-4">
+                    <div class="form-group">
+                        Số điện thoại
+                        <input style="width:180px" type="text" id="txtSDT" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
+
+                <div class="row col-md-4">
+                    <div class="form-group">
+                        Địa chỉ
+                        <input style="width:290px" type="text" class="form-control" readonly="readonly" id="txtDiaChi" />
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </fieldset>
+
+
+    <fieldset>
+        <legend>
+            Thông tin sản phẩm
+        </legend>
+        <div class="container">
+            <div class="row">
+                <div class="row col-md-4">
+                    <div class="form-group was-validated">
+                        Tên sản phẩm
+                        @Html.DropDownList("MaSP", null, htmlAttributes: new { @class = "form-control", type = "text", required = "true", style = "width:180px" })
+                        @Html.ValidationMessageFor(model => model.MaSP, "", new { @class = "text-danger" })
+
+                    </div>
+                </div>
+
+                <div class="row col-md-4">
+                    <div class="form-group">
+                        Loại sản phẩm
+                        <input style="width:180px" type="text" id="txtLoaiSanPham" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
+
+                <div class="row col-md-4">
+                    <div class="form-group">
+                        Đơn vị tính
+                        <input style="width:180px" type="text" class="form-control" readonly="readonly" id="txtDonViTinh" />
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="row col-md-4">
+                    <div class="form-group">
+                        Số lượng
+                        <input style="width:180px" id="txtSoLuong" type="number" value="0" min="1" class="form-control" />
+                        <div class="invalid-feedback">
+                            *Số lượng tối thiểu 1
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row col-md-4">
+                    <div class="form-group was-validated">
+                        Đơn giá
+                        <input style="width:180px" type="number" readonly="readonly" value="0" min="1" class="form-control" id="txtDonGia" />
+                    </div>
+                </div>
+
+                <div class="row col-md-4" hidden>
+                    <div class="form-group">
+                        Số lượng tồn
+                        <input style="width:180px" type="number" id="txtSoLuongTon" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
+
+                <div class="row col-md-3">
+                    <div class="form-group">
+                        <input style="margin-top:20px" type="button" onclick="addItem()" id="btnThemSanPham" value="Thêm sản phẩm" name="ThemSanPham" class="btn btn-success" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </fieldset>
+
+    <fieldset>
+        <legend> Danh sách sản phẩm </legend>
+        <table class="table-bordered table-hover" style="width: 100%" id="tblDanhSachSanPham">
+            <thead>
+                <tr>
+                    <th hidden>
+                        MaSP
+                    </th>
+                    <th style="text-align: center">
+                        Tên sản phẩm
+                    </th>
+                    <th style="text-align: center">
+                        Loại sản phẩm
+                    </th>
+                    <th style="text-align: center">
+                        Số lượng
+                    </th>
+
+                    <th style="text-align: center">
+                        Đơn vị tính
+                    </th>
+
+                    <th style="text-align: center">
+                        Đơn giá
+                    </th>
+                    <th style="text-align: center">
+                        Thành tiền
+                    </th>
+
+                    <th style="text-align: center">
+                        Hành động
+                    </th>
+                </tr>
+
+            </thead>
+            <tbody id="#tblDSSanPham"></tbody>
+        </table>
+    </fieldset>
+
+    <p style="text-align:right; float: left; padding-top:20px; padding-left: 15px">
+        <span id="txtThanhTien" style="font-weight:bold; font-size: 150%; background-color: yellow"> Tổng tiền: </span>
+        <span id="txtGiaTriThanhTien" style="color:red; font-weight:bold; font-size: 150%; background-color: yellow"> 0</span>
+    </p>
+
+    <div style="margin: 20px 15px">
+        <div class="form-group">
+            <input type="button" id="btnThanhToan" value="Xác nhận" style="float:right" name="Xác nhận" class="btn btn-primary" />
+
+        </div>
+
+    </div>
+}
+
+
+<div>
+    @*@Html.ActionLink("Back to List", "Index")*@
+</div>

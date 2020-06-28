@@ -1,0 +1,150 @@
+﻿CREATE DATABASE QUANLYCUAHANG
+
+CREATE TABLE DONVITINH 
+(
+	MaDVT INT IDENTITY(1,1) PRIMARY KEY,
+	TenDVT NVARCHAR(30) NOT NULL
+)
+
+CREATE TABLE LOAISANPHAM 
+(
+	MaLoaiSP INT IDENTITY(1,1) PRIMARY KEY,
+	TenLoaiSP NVARCHAR(30) NOT NULL,
+	PhanTramLoiNhuan float NOT NULL,
+	MaDVT int NOT NULL,
+	CONSTRAINT FK_MaDVT_LOAISANPHAM FOREIGN KEY (MaDVT) REFERENCES DONVITINH(MaDVT)
+)
+
+CREATE TABLE SANPHAM 
+(
+	MaSP INT IDENTITY(1,1) PRIMARY KEY,
+	TenSanPham NVARCHAR(30) NOT NULL,
+	GiaMuaVao MONEY NOT NULL,
+	GiaBanRa MONEY NOT NULL,
+	SoLuongTon INT NOT NULL,
+	MaLoaiSP INT NOT NULL,
+	CONSTRAINT FK_MaLoaiSP_SANPHAM FOREIGN KEY (MaLoaiSP) REFERENCES LOAISANPHAM(MaLoaiSP)
+)
+
+--ALTER TABLE SANPHAM
+--add CONSTRAINT FK_MaLoaiSP_SANPHAM FOREIGN KEY (MaLoaiSP) REFERENCES LOAISANPHAM(MaLoaiSP)
+
+
+
+
+
+
+CREATE TABLE PHIEUBANHANG
+(
+	MaPBH INT IDENTITY(1,1) PRIMARY KEY,
+	TenKH NVARCHAR(30),
+	NgayLap DATE NOT NULL,
+	TongTien MONEY NOT NULL
+)
+
+CREATE TABLE CT_PHIEUBANHANG
+(
+	MaPBH INT NOT NULL,
+	MaSP INT NOT NULL,
+	SoLuong INT NOT NULL,
+	DonGia MONEY NOT NULL,
+	ThanhTien MONEY NOT NULL,
+    CONSTRAINT PK_CTPHIEUBANHANG PRIMARY KEY (MaPBH, MaSP),
+	CONSTRAINT FK_MaPBH_CTPHIEUBANHANG FOREIGN KEY (MaPBH) REFERENCES PHIEUBANHANG(MaPBH),
+	CONSTRAINT FK_MaSP_CTPHIEUBANHANG FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
+)
+
+
+CREATE TABLE NHACUNGCAP
+(
+    MaNCC INT IDENTITY(1,1) PRIMARY KEY,
+    TenNCC NVARCHAR(30) NOT NULL,
+    DiaChi NVARCHAR(50) NOT NULL,
+    SDT NVARCHAR(10) NOT NULL
+)
+
+CREATE TABLE PHIEUMUAHANG
+(
+    MaPMH INT IDENTITY(1,1) PRIMARY KEY,
+    NgayLap DATE NOT NULL,
+    TongTien MONEY NOT NULL,
+    MaNCC INT NOT NULL,
+    CONSTRAINT FK_MaNCC_PHIEUMUAHANG FOREIGN KEY (MaNCC) REFERENCES NHACUNGCAP(MaNCC)
+)
+
+CREATE TABLE CHITIET_PMH
+(
+    MaPMH INT NOT NULL,
+    MaSP INT NOT NULL,
+    SoLuong INT NOT NULL,
+    DonGia MONEY NOT NULL,
+    ThanhTien MONEY NOT NULL,
+    CONSTRAINT PK_CHITIET_PMH PRIMARY KEY (MaPMH, MaSP),
+    CONSTRAINT FK_MaPMH_CHITIET_PMH FOREIGN KEY (MaPMH) REFERENCES PHIEUMUAHANG(MaPMH),
+    CONSTRAINT FK_MaSP_CHITIET_PMH FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
+)
+
+create table LOAIDV
+( 
+  MaLoaiDV int identity(1,1) primary key,
+  TenLoaiDV nvarchar(30) NOT NULL,
+  DonGiaDV  smallmoney NOT NULL,
+)
+
+
+create table TINHTRANGPDV
+( MaTinhTrangPDV int primary key,
+  TenTinhTrang nvarchar(30) NOT NULL,
+)
+create table TINHTRANGDV	
+( 
+  MaTinhTrangDV int primary key,
+  TenTinhTrang nvarchar(30) NOT NULL,
+)
+
+create table PHIEUDV
+( 
+  MaPDV int identity(1,1) primary key,
+  NgayLap datetime NOT NULL,
+  TenKH nvarchar(30) NOT NULL,
+  SDT nvarchar(10) NOT NULL,
+  TongTien money NOT NULL,	
+  TongTienTraTruoc money NOT NULL,
+  TongTienConLai money NOT NULL,
+  MaTinhTrangPDV int NOT NULL, 
+  constraint FK_MATINHTRANGPDV_PHIEUDV foreign key (MaTinhTrangPDV) references TINHTRANGPDV(MaTinhTrangPDV)
+)
+
+create table CHITIET_PHIEUDV
+( 
+  MaPDV int foreign key references PHIEUDV(MAPDV),
+  MaLoaiDV int foreign key references LOAIDV(MaLoaiDV),
+  constraint PK_CT_PDV primary key (MaPDV,MaLoaiDV), 
+  DonGiaDuocTinh money NOT NULL,
+  SoLuong int NOT NULL,
+  ThanhTien money NOT NULL,
+  ThanhToanTraTruoc money NOT NULL,
+  ThanhToanConLai money NOT NULL,
+  NgayGiao datetime NOT NULL,
+  MaTinhTrangDV int NOT NULL,
+  constraint FK_MaTinhTrangDV_CHITIETPDV foreign key (MaTinhTrangDV) references TINHTRANGDV(MaTinhTrangDV) 
+)
+
+create table BCTONKHO
+( Thang date,
+  MaSP int foreign key references SANPHAM(MaSP),
+  constraint PK_BCTONKHO primary key (Thang, MaSP),
+  Tondau int NOT NULL,
+  TonCuoi int NOT NULL,
+  SLMuaVao int NOT NULL,
+  SLBanRa int NOT NULL,
+)
+
+
+CREATE TABLE THAMSO
+(
+	PhanTramTraTruoc INT NOT NULL
+)
+
+
+

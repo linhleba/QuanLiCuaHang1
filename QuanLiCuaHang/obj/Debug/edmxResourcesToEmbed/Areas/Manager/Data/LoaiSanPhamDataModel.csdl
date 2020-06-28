@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="QUANLYCUAHANGModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="DONVITINH">
+    <Key>
+      <PropertyRef Name="MaDVT" />
+    </Key>
+    <Property Name="MaDVT" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TenDVT" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+    <NavigationProperty Name="LOAISANPHAM" Relationship="Self.FK_MaDVT_LOAISANPHAM" FromRole="DONVITINH" ToRole="LOAISANPHAM" />
+  </EntityType>
+  <EntityType Name="LOAISANPHAM">
+    <Key>
+      <PropertyRef Name="MaLoaiSP" />
+    </Key>
+    <Property Name="MaLoaiSP" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TenLoaiSP" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="PhanTramLoiNhuan" Type="Double" Nullable="false" />
+    <Property Name="MaDVT" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="DONVITINH" Relationship="Self.FK_MaDVT_LOAISANPHAM" FromRole="LOAISANPHAM" ToRole="DONVITINH" />
+  </EntityType>
+  <Association Name="FK_MaDVT_LOAISANPHAM">
+    <End Role="DONVITINH" Type="Self.DONVITINH" Multiplicity="1" />
+    <End Role="LOAISANPHAM" Type="Self.LOAISANPHAM" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="DONVITINH">
+        <PropertyRef Name="MaDVT" />
+      </Principal>
+      <Dependent Role="LOAISANPHAM">
+        <PropertyRef Name="MaDVT" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="QUANLYCUAHANGEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="DONVITINHs" EntityType="Self.DONVITINH" />
+    <EntitySet Name="LOAISANPHAMs" EntityType="Self.LOAISANPHAM" />
+    <AssociationSet Name="FK_MaDVT_LOAISANPHAM" Association="Self.FK_MaDVT_LOAISANPHAM">
+      <End Role="DONVITINH" EntitySet="DONVITINHs" />
+      <End Role="LOAISANPHAM" EntitySet="LOAISANPHAMs" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

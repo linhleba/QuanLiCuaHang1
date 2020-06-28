@@ -1,0 +1,166 @@
+﻿
+@{
+    ViewBag.Title = "Index1";
+    Layout = "~/Areas/Manager/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+
+    });
+</script>
+<style>
+    fieldset {
+        /* tạo khung viền bên ngoài*/
+        border: 1px solid #ddd !important;
+        margin: 0;
+        padding: 10px;
+        position: relative;
+        border-radius: 4px;
+        /* màu nền xám*/
+        background-color: #f5f5f5;
+        padding-left: 10px !important;
+    }
+
+    legend {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 0px;
+        width: 35%;
+        /* tạo border xung quanh legend*/
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px 5px 5px 10px;
+        background-color: #ffffff;
+    }
+</style>
+
+<fieldset>
+    <legend>
+        Thông tin khách hàng
+    </legend>
+    <div class="container">
+        <div class="row">
+            <div class="row col-md-6">
+                <div class="form-group">
+                    Số phiếu
+                    @*@Html.DropDownList(name: "PhieuBanHang", new SelectList(,dataValueField: "Value", dataTextField: "text").DataGroupField,
+                        htmlAttributes: new { @class = "form-control" })*@
+                    <input type="text" class="form-control" readonly="readonly"/>
+
+
+                </div>
+            </div>
+
+            <div class="row col-md-6">
+                <div class="form-group">
+                    Ngày giao dịch
+                    <input type="datetime" class="form-control" />
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div class="row">
+            <div class="row col-md-6">
+                <div class="form-group">
+                    Tên khách hàng
+                    <input type="text" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</fieldset>
+
+
+<fieldset>
+    <legend>
+        Thông tin sản phẩm
+    </legend>
+    <div class="container">
+        <div class="row">
+            <div class="row col-md-4">
+                <div class="form-group">
+                    Tên sản phẩm
+
+                    <input type="text" class="form-control" />
+
+
+                </div>
+            </div>
+
+            <div class="row col-md-4">
+                <div class="form-group">
+                    Loại sản phẩm
+                    <input type="text" class="form-control" readonly="readonly"/>
+                </div>
+            </div>
+
+            <div class="row col-md-4">
+                <div class="form-group">
+                    Đơn vị tính
+                    <input type="text" class="form-control" readonly="readonly"/>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="row">
+            <div class="row col-md-4">
+                <div class="form-group">
+                    Số lượng
+                    <input  type="number" value="0" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row col-md-4">
+                <div class="form-group">
+                    Đơn giá
+                    <input readonly="readonly" type ="number" value="0" class="form-control" />
+                </div>
+            </div>
+            <div class="row col-md-4">
+                <div class="form-group">
+                    
+                    <input type="button" style="margin-top:20px" value="Thêm sản phẩm" name="ThemSanPham" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</fieldset>
+
+<fieldset>
+    <legend> Danh sách sản phẩm </legend>
+    <table style="width: 100%">
+        <thead>
+            <tr>
+                <th>
+                    Số thứ tự
+                </th>
+                <th>
+                    Tên sản phẩm
+                </th>
+                <th>
+                    Loại sản phẩm
+                </th>
+                <th>
+                    Số lượng
+                </th>
+                <th>
+                    Đơn giá
+                </th>
+                <th>
+                    Thành tiền
+                </th>
+            </tr>
+        </thead>
+    </table>
+</fieldset>
